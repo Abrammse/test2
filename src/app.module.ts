@@ -9,7 +9,7 @@ import entities from './typorm';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
-      imports: [],
+      imports: [ConfigModule],
       useFactory: (ConfigService: ConfigService) => ({
         type: 'postgres',
         host: ConfigService.get('DB_HOST'),

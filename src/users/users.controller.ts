@@ -7,12 +7,21 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/createuser.dtos';
-import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
+import { LoginUserDto } from './dtos/login.dtos ';
+import { AuthGuard } from './dtos/auth.guard';
 
 @Controller('users')
+@ApiBearerAuth()
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
@@ -34,12 +43,17 @@ export class UsersController {
     summary: 'user registeration ',
     description: 'The password of the user',
   })
+  @ApiParam({ name: 'id', description: 'User ID', type: Number })
+  @ApiResponse({ status: 200, description: 'User found successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @UseGuards(AuthGuard)
   @Get(':id')
-  @ApiParam({ name: 'ID', description: 'User ID', type: Number })
-  @ApiResponse({ status: 200, description: 'User retrieved successfully.' })
-  @ApiResponse({ status: 400, description: 'Invalid user ID.' })
-  @ApiResponse({ status: 404, description: 'User not found.' })
-  findUserByID(@Param('id', ParseIntPipe) id: string) {
-    return this.userService.findUserByID(+id);
+  getUserById(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.findUserByID(id);
+  }
+
+  @Post('login')
+  login(@Body() loginUserDto: LoginUserDto) {
+    return this.userService.login(loginUserDto);
   }
 }
